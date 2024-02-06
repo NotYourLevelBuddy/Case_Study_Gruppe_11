@@ -1,0 +1,54 @@
+# Fahrzeuge_OEM1_Typ11.csv
+# Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv
+# Bestandteile_Fahrzeuge_OEM1_Typ11.csv
+
+# Karosserie
+# Komponente_K4.csv
+# Bestandteile_Komponente_K4.csv
+# Einzelteil_T30.csv
+# Einzelteil_T31.txt
+# Einzelteil_T32.csv
+
+# Schaltung
+
+# Schaltgetriebe
+# Komponente_K3SG1.csv
+# Bestandteile_Komponente_K3AG1.csv
+# Einzelteil_T21.csv
+# Einzelteil_T22.txt
+# Einzelteil_T23.csv
+
+# Automatikgetriebe
+# Komponente_K3AG1.csv
+# Bestandteile_Komponente_K3SG1.csv
+# Einzelteil_T21.csv Doppelt
+# Einzelteil_T24.txt
+# Einzelteil_T25.csv
+
+# Sitze
+# Komponente_K2LE1s.txt
+# Bestandteile_Komponente_K2LE1s.csv
+# Einzelteil_T11.txt
+# Einzelteil_T14.csv
+# Einzelteil_T15.csv
+
+# Komponente_K2LE1s.txt
+# Bestandteile_Komponente_K2LE1s.csv doppelt
+# Einzelteil_T11.txt Doppelt
+# Einzelteil_T12.csv
+# Einzelteil_T13.csv
+
+# Motor
+# Komponente_K1BE1.csv
+# Bestandteile_Komponente_K1BE1.csv
+# Einzelteil_T01.txt
+# Einzelteil_T02.txt
+# Einzelteil_T03.txt
+# Einzelteil_T04.csv
+
+# Komponente_K1DI1.csv
+# Bestandteile_Komponente_K1DI1.csv
+# Einzelteil_T01.txt Doppelt
+# Einzelteil_T02.txt Doppelt
+# Einzelteil_T05.csv
+# Einzelteil_T06.csv
