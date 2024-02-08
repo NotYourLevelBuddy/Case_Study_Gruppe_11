@@ -1,7 +1,20 @@
 # install.packages("tidyverse")
 library(readr)
 library(dplyr)
+library(vroom)
+library(stringr)
 # data2 <- read_csv("D:\\RStudio\\Binning\\data.csv ")
+# results <- read_delim('results.txt', delim = '   ')
+results <- with_edition(1, read_delim("results.txt", delim = " "))
+
+my_txt <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T20.txt", sep = ""))
+# txt <- str_trunc(my_txt, 1000)
+txt <- str_replace_all(my_txt, "\" \"", "\"\n\"")
+txt <- str_replace_all(txt, "[|]", "")
+txt <- str_replace_all(txt, "[[:space:]]{3}", "\t")
+tf <- tempfile()
+writeLines(txt, tf)
+Einzelteile_T20 <- read_delim(tf)
 
 # -----------------------------------
 # Fahrzeug allgemein
@@ -14,7 +27,8 @@ Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_
 Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Komponente_K4.csv")
 Bestandteile_Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K4.csv")
 Einzelteil_T30 <- read_csv(".\\Data\\Einzelteil\\Einzelteil_T30.csv")
-# !!! Einzelteil_T31 <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T31.txt")
+Einzelteil_T31 <- read_delim_chunked(".\\Data\\Einzelteil\\Einzelteil_T31.txt", delim = "  ")
+Einzelteil_T31 <- with_edition(1, read_delim(".\\Data\\Einzelteil\\Einzelteil_T31.txt", delim = "  "))
 
 Einzelteil_T32 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T32.csv")
 
@@ -24,7 +38,7 @@ Einzelteil_T32 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T32.csv")
 Komponente_K3SG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3SG1.csv")
 Bestandteile_Komponente_K3AG1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K3AG1.csv")
 Einzelteil_T21 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T21.csv")
-# !!! Einzelteil_T22 <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T22.txt")
+# Einzelteil_T22 <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T22.txt")
 Einzelteil_T23 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T23.csv")
 
 # Automatikgetriebe
@@ -35,9 +49,9 @@ Bestandteile_Komponente_K3SG1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Ko
 Einzelteil_T25 <- read_csv(".\\Data\\Einzelteil\\Einzelteil_T25.csv")
 
 # Sitze
-# !! Komponente_K2LE1 <- read_delim(".\\Data\\Komponente\\Komponente_K2LE1.txt", delim = "II")
+
 Bestandteile_Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K2LE1.csv")
-# !! Einzelteil_T11.txt <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T01.txt")
+Einzelteil_T11.txt <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T11.txt")
 
 Einzelteil_T14 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T14.csv")
 Einzelteil_T15 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T15.csv")
