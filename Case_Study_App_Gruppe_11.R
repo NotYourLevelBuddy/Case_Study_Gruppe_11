@@ -3,6 +3,7 @@ library(readr)
 library(dplyr)
 library(vroom)
 library(stringr)
+library(ggplot2)
 # data2 <- read_csv("D:\\RStudio\\Binning\\data.csv ")
 # results <- read_delim('results.txt', delim = '   ')
 # results <- with_edition(1, read_delim("results.txt", delim = " "))
@@ -150,19 +151,27 @@ Einzelteil_T06_sorted <- Einzelteil_T06 %>%
 
 
 Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
+
+Herstellerdaten <- Komponente_K1BE1 %>%
+  group_by(Herstellernummer) %>%
+  summarise(absolut=n())
+
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   filter(!is.na(Fehlerhaft_Datum)) %>%
   mutate(Produktionsdatum_Origin_01011970 = as.Date(Produktionsdatum_Origin_01011970)) %>%
   select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer))
 
-library(ggplot2)
-# Basic line plot with points
-ggplot(data=Komponente_K1BE1, aes(x=Fehlerhaft_Fahrleistung, y=cumsum(X1), group=Herstellernummer)) +
-  geom_line()
+plot_data <- Komponente_K1BE1 %>%
+  mutate(cuts = cut(Fehlerhaft_Fahrleistung, seq(27000, 34000, length.out = 10))) %>%
+  group_by(cuts, Herstellernummer) %>%
+  summarise(n=n())
 
-Komponente_K1BE1 %>%
-  group_by(Herstellernummer) %>%
-  summarise(median = mean(Fehlerhaft_Fahrleistung))
+plot_data <- plot_data %>%
+  left_join(Herstellerdaten, by = "Herstellernummer") %>%
+  mutate(relativ = n/absolut)
+
+ggplot(data=plot_data, aes(x=cuts, y=cumsum(relativ), group=Herstellernummer)) +
+  geom_line()
 
 Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
 Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2LE1.csv")
