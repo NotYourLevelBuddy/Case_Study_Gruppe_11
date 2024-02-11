@@ -149,18 +149,23 @@ Einzelteil_T05_sorted <- Einzelteil_T05 %>%
 Einzelteil_T06_sorted <- Einzelteil_T06 %>%
   filter(!is.na(Fehlerhaft_Datum))
 
+# Nur zum Testen, muss später rausgenommen werden ---------
 Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
 Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
+Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
+# --------------------------------------------------------
 
 #Join Tables to get Betriebsstunden
 #a LOT of na's, reduces values from 200k to 17k, problem?
 Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   filter(!is.na(Fehlerhaft_Datum)) %>%
-  mutate(Produktionsdatum_Origin_01011970 = as.Date(Produktionsdatum_Origin_01011970)) %>%
-  select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer, ID_Motor)) %>%
-  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor") %>%
-  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970)) %>%
+  select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer, ID_Motor, Produktionsdatum)) %>% #mit selecten
+
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor") %>% #id fahrzeug
+
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>% #days
   filter(!is.na(Fehlerhaft_Fahrleistung.y)) %>%
   select(c(Fehlerhaft_Fahrleistung.x, days, Herstellernummer.x, ID_Motor, ID_Fahrzeug))
 
