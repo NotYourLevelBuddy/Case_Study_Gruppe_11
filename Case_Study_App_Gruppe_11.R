@@ -180,7 +180,7 @@ Einzelteil_T06_sorted <- Einzelteil_T06 %>%
 # Nur zum Testen, muss später rausgenommen werden ---------
 Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
 Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
-
+Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
 # --------------------------------------------------------
 
 #Join Tables to get Betriebsstunden
@@ -191,10 +191,13 @@ Komponente_K1BE1 <- Komponente_K1BE1 %>%
   mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970)) %>%
   select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer, ID_Motor, Produktionsdatum)) %>%
 
-  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor") %>%
-  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor") %>% #id fahrzeug
 
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>% #days
   filter(!is.na(Fehlerhaft_Fahrleistung.y)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung.x, days, Herstellernummer.x, ID_Motor, ID_Fahrzeug, ))
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days,
            Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor, ID_Fahrzeug))
 
@@ -202,20 +205,50 @@ Komponente_K1BE1 <- Komponente_K1BE1 %>%
 Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
 Komponente_K1DI1 <- Komponente_K1DI1 %>%
   filter(!is.na(Fehlerhaft_Datum.x)) %>%
-  select(c(Fehlerhaft_Fahrleistung.x,X1, Herstellernummer.x, ID_Motor.x)) %>%
-
+  select(c(Fehlerhaft_Fahrleistung.x,X1, Herstellernummer.x, ID_Motor.x, Produktionsdatum.x)) %>%
   left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = join_by(ID_Motor.x == ID_Motor)) %>%
   left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
 
   filter(!is.na(Fehlerhaft_Fahrleistung)) %>%
-  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days,
-           Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor.x, ID_Fahrzeug))
+  left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
+  mutate(Lieferdauer = Produktionsdatum - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor.x, ID_Fahrzeug, Lieferdauer))
 
-Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2LE1.csv")
-Komponente_K2ST1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2ST1.csv")
+Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2LE1.csv") # txt
+Komponente_K2ST1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2ST1.csv") # txt
+
 Komponente_K3AG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3AG1.csv")
+Komponente_K3AG1 <- Komponente_K3AG1 %>%
+  filter(!is.na(Fehlerhaft_Datum.x)) %>%
+  select(c(Fehlerhaft_Fahrleistung.x, Herstellernummer.x, ID_Schaltung.x, Produktionsdatum.x)) %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = join_by(ID_Schaltung.x == ID_Schaltung)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
+  filter(!is.na(Fehlerhaft_Fahrleistung)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
+  mutate(Lieferdauer = Produktionsdatum - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Schaltung.x, ID_Fahrzeug, Lieferdauer))
+
 Komponente_K3SG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3SG1.csv")
+Komponente_K3SG1 <- Komponente_K3SG1 %>%
+  filter(!is.na(Fehlerhaft_Datum.x)) %>%
+  select(c(Fehlerhaft_Fahrleistung.x, Herstellernummer.x, ID_Schaltung.x, Produktionsdatum.x)) %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = join_by(ID_Schaltung.x == ID_Schaltung)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
+  filter(!is.na(Fehlerhaft_Fahrleistung)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
+  mutate(Lieferdauer = Produktionsdatum - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Schaltung.x, ID_Fahrzeug, Lieferdauer))
+
 Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Komponente_K4.csv")
+Komponente_K4 <- Komponente_K4 %>%
+  filter(!is.na(Fehlerhaft_Datum.x)) %>%
+  select(c(Fehlerhaft_Fahrleistung.x, Herstellernummer.x, ID_Karosserie.x, Produktionsdatum.x)) %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = join_by(ID_Karosserie.x == ID_Karosserie)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
+  filter(!is.na(Fehlerhaft_Fahrleistung)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
+  mutate(Lieferdauer = Produktionsdatum - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Karosserie.x, ID_Fahrzeug, Lieferdauer))
 
 #Grouping and Testing for Plot
 Herstellerdaten <- Komponente_K1BE1 %>%
