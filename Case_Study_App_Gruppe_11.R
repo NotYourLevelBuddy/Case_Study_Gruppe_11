@@ -151,26 +151,34 @@ Einzelteil_T06_sorted <- Einzelteil_T06 %>%
 
 Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
 Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
-Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
 
 #Join Tables to get Betriebsstunden
 #a LOT of na's, reduces values from 200k to 17k, problem?
-
+Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   filter(!is.na(Fehlerhaft_Datum)) %>%
   mutate(Produktionsdatum_Origin_01011970 = as.Date(Produktionsdatum_Origin_01011970)) %>%
-  select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer, ID_Motor))
-
-Komponente_K1BE1 <- Komponente_K1BE1 %>%
-  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor")
-
-Komponente_K1BE1 <- Komponente_K1BE1 %>%
-  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug")
-
-Komponente_K1BE1 <- Komponente_K1BE1 %>%
+  select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer, ID_Motor)) %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor") %>%
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
   filter(!is.na(Fehlerhaft_Fahrleistung.y)) %>%
-  select(-c(X1.x, ...1.x:ID_Sitze, ...1.y:Fehlerhaft_Fahrleistung.y, fuel, engine))
+  select(c(Fehlerhaft_Fahrleistung.x, days, Herstellernummer.x, ID_Motor, ID_Fahrzeug))
 
+
+Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
+Komponente_K1DI1 <- Komponente_K1DI1 %>%
+  filter(!is.na(Fehlerhaft_Datum.x)) %>%
+  select(c(Fehlerhaft_Fahrleistung.x,X1, Herstellernummer.x, ID_Motor.x)) %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = join_by(ID_Motor.x == ID_Motor)) %>%
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
+  filter(!is.na(Fehlerhaft_Fahrleistung)) %>%
+  select(c(Fehlerhaft_Fahrleistung.x, days, Herstellernummer.x, ID_Motor.x, ID_Fahrzeug))
+
+Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2LE1.csv")
+Komponente_K2ST1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2ST1.csv")
+Komponente_K3AG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3AG1.csv")
+Komponente_K3SG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3SG1.csv")
+Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Komponente_K4.csv")
 
 #Grouping and Testing for Plot
 Herstellerdaten <- Komponente_K1BE1 %>%
@@ -189,12 +197,6 @@ plot_data_Laufleistung <- plot_data_Laufleistung %>%
 
 ggplot(data=plot_data_Laufleistung, aes(x=cuts, y=cumsum(relativ), group=Herstellernummer)) +
   geom_line()
-
-Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
-Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2LE1.csv")
-Komponente_K3AG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3AG1.csv")
-Komponente_K3SG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3SG1.csv")
-Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Komponente_K4.csv")
 
 
 Komponente_K1BE1_sorted <- Komponente_K1BE1 %>%
