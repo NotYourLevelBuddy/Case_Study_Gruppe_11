@@ -197,9 +197,8 @@ Komponente_K1BE1 <- Komponente_K1BE1 %>%
   filter(!is.na(Fehlerhaft_Fahrleistung.y)) %>%
   left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
   mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
-  select(c(Fehlerhaft_Fahrleistung.x, days, Herstellernummer.x, ID_Motor, ID_Fahrzeug, ))
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days,
-           Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor, ID_Fahrzeug))
+           Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor, ID_Fahrzeug, Lieferdauer))
 
 
 Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
