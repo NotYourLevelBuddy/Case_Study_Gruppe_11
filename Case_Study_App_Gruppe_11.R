@@ -176,6 +176,7 @@ Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_
 Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
 # --------------------------------------------------------
 
+
 #Join Tables to get Betriebsstunden
 #a LOT of na's, reduces values from 200k to 17k, problem?
 Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
@@ -219,12 +220,14 @@ Komponente_K2LE1 <- Komponente_K2LE1 %>%
   filter(!is.na(Fehlerhaft_Datum)) %>%
   select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_Sitze, Produktionsdatum)) %>%
   left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Sitze") %>%
+  filter(!is.na(ID_Fahrzeug)) %>%                                           # Da manche ID_Sitze nur ID_Fahrzeug aus OEM1_Typ12 oä haben
   left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
   filter(!is.na(Fehlerhaft_Fahrleistung.x)) %>%
   left_join(Fahrzeuge_OEM1_Typ11, by = "ID_Fahrzeug") %>%
   mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x,
            ID_Komponente = ID_Sitze, ID_Fahrzeug, Lieferdauer))           # ist sitze richtig?
+
 
 # NAs in Betriebsdauer...
 Komponente_K2ST1 <- read_delim(".\\Data\\Komponente\\Komponente_K2ST1.txt", delim="|",
@@ -240,7 +243,7 @@ Komponente_K2ST1 <- Komponente_K2ST1 %>%
   mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x,
            ID_Komponente = ID_Sitze, ID_Fahrzeug, Lieferdauer)) %>%
-  filter(is.na(Betriebsdauer))
+  filter(!is.na(Betriebsdauer))
 
 
 Komponente_K3AG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3AG1.csv")
