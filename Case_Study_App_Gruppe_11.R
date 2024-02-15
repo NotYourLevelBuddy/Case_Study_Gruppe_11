@@ -179,20 +179,24 @@ Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
 
 #Join Tables to get Betriebsstunden
 #a LOT of na's, reduces values from 200k to 17k, problem?
+
+
 Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   filter(!is.na(Fehlerhaft_Datum)) %>%
-  mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970)) %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970))%>%
   select(c(Fehlerhaft_Fahrleistung,X1, Herstellernummer, ID_Motor, Produktionsdatum)) %>%
+  filter(Produktionsdatum >= "2013-01-01" & Produktionsdatum <= "2015-12-31") %>%
 
   left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Motor") %>% #id fahrzeug
-
   left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>% #days
   filter(!is.na(Fehlerhaft_Fahrleistung.y)) %>%
   left_join(Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
   mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days,
-           Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor, ID_Fahrzeug, Lieferdauer))
+           Herstellernummer = Herstellernummer.x, ID_Komponente = ID_Motor, ID_Fahrzeug, Lieferdauer,
+           Produktionsdatum = Produktionsdatum.x))
+
 
 
 Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
@@ -284,6 +288,9 @@ Komponente_K4 <- Komponente_K4 %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x,
            ID_Komponente = ID_Karosserie.x, ID_Fahrzeug, Lieferdauer))
 
+
+tabelle <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, Komponente_K2ST1, Komponente_K3AG1,
+                          Komponente_K3SG1, Komponente_K4))
 
 #Grouping and Testing for Plot
 Herstellerdaten <- Komponente_K1BE1 %>%
