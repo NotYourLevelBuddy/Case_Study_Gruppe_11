@@ -8,23 +8,7 @@ library(ggplot2)
 # results <- read_delim('results.txt', delim = '   ')
 # results <- with_edition(1, read_delim("results.txt", delim = " "))
 
-txt_struggle <- function (link, sep, linebreak_pattern, linebreak_replacement, column_pattern, column_replacement) {
-  # link in ""
-  # sep in ""
-  # all in ""
-  my_txt <- readLines(paste(link, sep = sep))
-  txt <- str_replace_all(my_txt, pattern = linebreak_pattern, replacement = linebreak_replacement) # replace linebreaks
-  txt <- str_replace_all(txt, pattern = column_pattern, replacement = column_replacement) # replace coloumn sep
-  tf <- tempfile()
-  writeLines(txt, tf)
-  new_name <- read_delim(tf)
-
-}
-
-Komponente_K2LE1 <- txt_struggle(".\\Data\\Komponente\\Komponente_K2LE1.txt", "", "", "\n", "II", "\t")
-
-
-
+# Example for importing txt data
 my_txt <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T20.txt", sep = ""))
 # txt <- str_trunc(my_txt, 1000)
 txt <- str_replace_all(my_txt, "\" \"", "\"\n\"") # replace linebreaks
@@ -215,7 +199,7 @@ Komponente_K1DI1 <- Komponente_K1DI1 %>%
 # NAs in Betriebsdauer...
 my_txt <- readLines(paste(".\\Data\\Komponente\\Komponente_K2LE1.txt", sep = ""))
 txt <- str_replace_all(my_txt, "", "\n") # replace linebreaks
-txt <- str_replace_all(txt, "II", "\t")
+txt <- str_replace_all(txt, "II", "\t") # replace tabs (coloumns)
 tf <- tempfile()
 writeLines(txt, tf)
 Komponente_K2LE1 <- read_delim(tf, col_names = c("ID", "X1", "ID_Sitze", "Produktionsdatum", "Herstellernummer",
@@ -290,7 +274,8 @@ Komponente_K4 <- Komponente_K4 %>%
 
 
 tabelle <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, Komponente_K2ST1, Komponente_K3AG1,
-                          Komponente_K3SG1, Komponente_K4))
+                          Komponente_K3SG1, Komponente_K4)) %>%
+            filter(Produktionsdatum >= "2013-01-01" & Produktionsdatum <= "2015-12-31")
 
 #Grouping and Testing for Plot
 Herstellerdaten <- Komponente_K1BE1 %>%
@@ -311,8 +296,3 @@ ggplot(data=plot_data_Laufleistung, aes(x=cuts, y=cumsum(relativ), group=Herstel
   geom_line()
 
 
-Komponente_K1BE1_sorted <- Komponente_K1BE1 %>%
-  filter(!is.na(Fehlerhaft_Datum))
-
-Komponente_K3SG1_sorted <- Komponente_K3SG1 %>%
-  filter(!is.na(Fehlerhaft_Datum))
