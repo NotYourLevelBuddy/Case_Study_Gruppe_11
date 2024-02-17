@@ -12,10 +12,27 @@ library(ggplot2)
 Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
 Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
 Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
-# --------------------------------------------------------
+
+Fahrzeuge_OEM1_Typ11 <- Fahrzeuge_OEM1_Typ11 %>%
+  left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
+  left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by="ID_Fahrzeug") %>%
+  drop_na() %>%
+  select(ID_Fahrzeug, ID_Motor, ID_Schaltung, ID_Karosserie, ID_Sitze, Betriebsdauer = days, Produktionsdatum)
 
 #--------------------------------------------------------------------------------------------------------------------
 #Komponente K1BE1
+
+Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
+Komponente_K1BE1 <- Komponente_K1BE1 %>%
+  filter(!is.na(Fehlerhaft_Datum)) %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970))%>%
+  select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_Motor, Produktionsdatum)) %>%
+  #filter(Produktionsdatum >= "2013-01-01" & Produktionsdatum <= "2015-12-31")
+  left_join(Fahrzeuge_OEM1_Typ11, by="ID_Motor") %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung, Betriebsdauer, Herstellernummer,
+           ID_Self = ID_Motor, ID_Parent = ID_Fahrzeug, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
 
 Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
