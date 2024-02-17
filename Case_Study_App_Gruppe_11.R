@@ -5,80 +5,6 @@ library(tidyr)
 library(vroom)
 library(stringr)
 library(ggplot2)
-# data2 <- read_csv("D:\\RStudio\\Binning\\data.csv ")
-# results <- read_delim('results.txt', delim = '   ')
-# results <- with_edition(1, read_delim("results.txt", delim = " "))
-
-# Example for importing txt data
-my_txt <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T20.txt", sep = ""))
-# txt <- str_trunc(my_txt, 1000)
-txt <- str_replace_all(my_txt, "\" \"", "\"\n\"") # replace linebreaks
-txt <- str_replace_all(txt, "[|]", "")
-txt <- str_replace_all(txt, "[[:space:]]{3}", "\t")
-tf <- tempfile()
-writeLines(txt, tf)
-Einzelteile_T20 <- read_delim(tf, col_names = c("X1", "ID","ID_T20", "Herstellernummer", "Werksnummer", "Fehlerhaft",
-                                                "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung", "Produktionsdatum"), skip = 1)
-
-# -----------------------------------
-# Fahrzeug allgemein
-Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
-Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
-Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
-
-# ------------------------------------
-# Karosserie
-Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Komponente_K4.csv")
-Bestandteile_Komponente_K4 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K4.csv")
-Einzelteil_T30 <- read_csv(".\\Data\\Einzelteil\\Einzelteil_T30.csv")
-Einzelteil_T31 <- read_delim_chunked(".\\Data\\Einzelteil\\Einzelteil_T31.txt", delim = "  ")
-Einzelteil_T31 <- with_edition(1, read_delim(".\\Data\\Einzelteil\\Einzelteil_T31.txt", delim = "  "))
-
-Einzelteil_T32 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T32.csv")
-
-# --------------------------------------
-# Schaltung
-# Schaltgetriebe
-Komponente_K3SG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3SG1.csv")
-Bestandteile_Komponente_K3AG1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K3AG1.csv")
-Einzelteil_T21 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T21.csv")
-# Einzelteil_T22 <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T22.txt")
-Einzelteil_T23 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T23.csv")
-
-# Automatikgetriebe
-Komponente_K3AG1 <- read_csv(".\\Data\\Komponente\\Komponente_K3AG1.csv")
-Bestandteile_Komponente_K3SG1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K3SG1.csv")
-# Einzelteil_T21.csv Doppelt
-# !!! Einzelteil_T24 <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T24.txt")
-Einzelteil_T25 <- read_csv(".\\Data\\Einzelteil\\Einzelteil_T25.csv")
-
-# Sitze
-Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Komponente_K2LE1.csv")
-
-Bestandteile_Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K2LE1.csv")
-Einzelteil_T11.txt <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T11.txt")
-
-Einzelteil_T14 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T14.csv")
-Einzelteil_T15 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T15.csv")
-# Bestandteile_Komponente_K2LE1 Doppelt
-# Einzelteil_T11.txt Doppelt
-Einzelteil_T12 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T12.csv")
-Einzelteil_T13 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T13.csv")
-
-# Motor
-Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
-Bestandteile_Komponente_K1BE1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K1BE1.csv")
-# !! Einzelteil_T01 <- read_delim(".\\Data\\Einzelteil\\Einzelteil_T01.txt", delim = " | | ")
-# !! Einzelteil_T02 <- read_tsv(".\\Data\\Einzelteil\\Einzelteil_T01.txt")
-# !! Einzelteil_T03 <- read_delim(".\\Data\\Einzelteil\\Einzelteil_T01.txt", delim = "|")
-Einzelteil_T04 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T04.csv")
-
-Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
-
-# Einzelteil_T01.txt Doppelt
-# Einzelteil_T02.txt Doppelt
-Einzelteil_T05 <- read_csv(".\\Data\\Einzelteil\\Einzelteil_T05.csv")
-Einzelteil_T06 <- read_csv(".\\Data\\Einzelteil\\Einzelteil_T06.csv")
 
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -251,7 +177,6 @@ rm(Einzelteil_T01_K1DI1, Einzelteil_T02_K1DI1, Einzelteil_T05, Einzelteil_T06, B
 #--------------------------------------------------------------------------------------------------------------------
 #K2LE1
 
-# NAs in Betriebsdauer...
 Komponente_K2LE1_str <- readLines(paste(".\\Data\\Komponente\\Komponente_K2LE1.txt", sep = ""))
 Komponente_K2LE1_str <- str_replace_all(Komponente_K2LE1_str, "", "\n") # replace linebreaks
 Komponente_K2LE1_str <- str_replace_all(Komponente_K2LE1_str, "II", "\t") # replace tabs (coloumns)
@@ -259,22 +184,71 @@ tf <- tempfile()
 writeLines(Komponente_K2LE1_str, tf)
 Komponente_K2LE1 <- read_delim(tf, col_names = c("ID", "X1", "ID_Sitze", "Produktionsdatum", "Herstellernummer",
                                                  "Werksnummer", "Fehlerhaft", "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung"), skip = 1)
+rm(Komponente_K2LE1_str, tf)
+
 Komponente_K2LE1 <- Komponente_K2LE1 %>%
   filter(!is.na(Fehlerhaft_Datum)) %>%
   select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_Sitze, Produktionsdatum)) %>%
   left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Sitze") %>%
-  filter(!is.na(ID_Fahrzeug)) %>%                                           # Da manche ID_Sitze nur ID_Fahrzeug aus OEM1_Typ12 oä haben
   left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
-  filter(!is.na(Fehlerhaft_Fahrleistung.x)) %>%
+  drop_na() %>%
   left_join(Fahrzeuge_OEM1_Typ11, by = "ID_Fahrzeug") %>%
   mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x,
            ID_Self = ID_Sitze, ID_Parent = ID_Fahrzeug, Lieferdauer, Produktionsdatum = Produktionsdatum.x))           # ist sitze richtig?
 
+Bestandteile_Komponente_K2LE1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K2LE1.csv")
+
+Einzelteil_T11_str <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T11.txt", sep = ""))
+Einzelteil_T11_str <- str_replace_all(Einzelteil_T11_str, "", "\n") # replace linebreaks
+#Einzelteil_T11_str <- str_replace_all(Einzelteil_T11_str, "\t", ",")
+tf <- tempfile()
+writeLines(Einzelteil_T11_str, tf)
+Einzelteil_T11 <- read_delim(tf, col_names = c("ID", "X1", "ID_T11", "Herstellernummer", "Werksnummer",
+                                               "Fehlerhaft", "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung",  "Produktionsdatum"), skip = 1)
+Einzelteil_T11_K2ST1 <- Einzelteil_T11
+rm(Einzelteil_T11_str, tf)
+Einzelteil_T11 <- Einzelteil_T11 %>%
+  #filter(!is.na(Fehlerhaft_Datum)) %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum)) %>%
+  select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_T11, Produktionsdatum)) %>%
+  left_join(Bestandteile_Komponente_K2LE1, by="ID_T11") %>%
+  left_join(Komponente_K2LE1, by = join_by(ID_K2LE1 == ID_Self)) %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+           ID_Self = ID_T11, ID_Parent = ID_K2LE1, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+
+Einzelteil_T14 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T14.csv")
+Einzelteil_T14 <- Einzelteil_T14 %>%
+  #filter(!is.na(Fehlerhaft_Datum)) %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970)) %>%
+  select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_T14, Produktionsdatum)) %>%
+  left_join(Bestandteile_Komponente_K2LE1, by="ID_T14") %>%
+  left_join(Komponente_K2LE1, by = join_by(ID_K2LE1 == ID_Self)) %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+           ID_Self = ID_T14, ID_Parent = ID_K2LE1, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+Einzelteil_T15 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T15.csv")
+Einzelteil_T15 <- Einzelteil_T15 %>%
+  #filter(!is.na(Fehlerhaft_Datum)) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Herstellernummer = Herstellernummer.x, ID_T15 = ID_T15.x, Produktionsdatum = Produktionsdatum.x)) %>%
+  left_join(Bestandteile_Komponente_K2LE1, by="ID_T15") %>%
+  left_join(Komponente_K2LE1, by = join_by(ID_K2LE1 == ID_Self)) %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+           ID_Self = ID_T15, ID_Parent = ID_K2LE1, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+Komponente_K2LE1 <- bind_rows(list(Komponente_K2LE1, Einzelteil_T11, Einzelteil_T14, Einzelteil_T15))
+rm(Einzelteil_T11, Einzelteil_T14, Einzelteil_T15, Bestandteile_Komponente_K2LE1)
+
 #--------------------------------------------------------------------------------------------------------------------
 # Komponente_K2ST1
 
-# NAs in Betriebsdauer...
 Komponente_K2ST1 <- read_delim(".\\Data\\Komponente\\Komponente_K2ST1.txt", delim="|",
                                col_names = c("ID", "X1", "ID_Sitze", "Produktionsdatum", "Herstellernummer", "Werksnummer",
                                              "Fehlerhaft", "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung"), skip = 1)
@@ -283,12 +257,49 @@ Komponente_K2ST1 <- Komponente_K2ST1 %>%
   select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_Sitze, Produktionsdatum)) %>%
   left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by = "ID_Sitze") %>%
   left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by = "ID_Fahrzeug") %>%
-  filter(!is.na(Fehlerhaft_Fahrleistung.x)) %>%
+  drop_na() %>%
   left_join(Fahrzeuge_OEM1_Typ11, by = "ID_Fahrzeug") %>%
   mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer = days, Herstellernummer = Herstellernummer.x,
-           ID_Self = ID_Sitze, ID_Parent = ID_Fahrzeug, Lieferdauer)) %>%
-  filter(!is.na(Betriebsdauer))
+           ID_Self = ID_Sitze, ID_Parent = ID_Fahrzeug, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+Bestandteile_Komponente_K2ST1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K2ST1.csv")
+
+Einzelteil_T11_K2ST1 <- Einzelteil_T11_K2ST1 %>%
+  #filter(!is.na(Fehlerhaft_Datum)) %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum)) %>%
+  select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_T11, Produktionsdatum)) %>%
+  left_join(Bestandteile_Komponente_K2ST1, by="ID_T11") %>%
+  left_join(Komponente_K2ST1, by = join_by(ID_K2ST1 == ID_Self)) %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+           ID_Self = ID_T11, ID_Parent = ID_K2ST1, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+Einzelteil_T12 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T12.csv")
+Einzelteil_T12 <- Einzelteil_T12 %>%
+  #filter(!is.na(Fehlerhaft_Datum)) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Herstellernummer = Herstellernummer.x, ID_T12 = ID_T12.x, Produktionsdatum = Produktionsdatum.x)) %>%
+  left_join(Bestandteile_Komponente_K2ST1, by="ID_T12") %>%
+  left_join(Komponente_K2ST1, by = join_by(ID_K2ST1 == ID_Self)) %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+           ID_Self = ID_T12, ID_Parent = ID_K2ST1, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+Einzelteil_T13 <- read_csv2(".\\Data\\Einzelteil\\Einzelteil_T13.csv")
+Einzelteil_T13 <- Einzelteil_T13 %>%
+  mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970)) %>%
+  select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_T13, Produktionsdatum)) %>%
+  left_join(Bestandteile_Komponente_K2ST1, by="ID_T13") %>%
+  left_join(Komponente_K2ST1, by = join_by(ID_K2ST1 == ID_Self)) %>%
+  drop_na() %>%
+  mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+  select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+           ID_Self = ID_T13, ID_Parent = ID_K2ST1, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+
+Komponente_K2ST1 <- bind_rows(list(Komponente_K2ST1, Einzelteil_T11_K2ST1, Einzelteil_T12, Einzelteil_T13))
+rm(Einzelteil_T11_K2ST1, Einzelteil_T12, Einzelteil_T13, Bestandteile_Komponente_K2ST1)
 
 #--------------------------------------------------------------------------------------------------------------------
 # Komponente_K3AG1
@@ -476,11 +487,11 @@ Einzelteil_T32 <- Einzelteil_T32 %>%
 Komponente_K4 <- bind_rows(list(Komponente_K4, Einzelteil_T30, Einzelteil_T31, Einzelteil_T32))
 rm(Einzelteil_T30, Einzelteil_T31, Einzelteil_T32, Bestandteile_Komponente_K4)
 
-tabelle <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, Komponente_K2ST1, Komponente_K3AG1,
-                          Komponente_K3SG1, Komponente_K4)) %>%
-            filter(Produktionsdatum >= "2013-01-01" & Produktionsdatum <= "2015-12-31")
+result <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, Komponente_K2ST1, Komponente_K3AG1,
+                          Komponente_K3SG1, Komponente_K4)) #%>%
+            #filter(Produktionsdatum >= "2013-01-01" & Produktionsdatum <= "2015-12-31")
 
-
+write_csv(result, "Datensatz.csv")
 
 #Grouping and Testing for Plot
 #grouping will be relevant for shiny app
@@ -500,5 +511,3 @@ plot_data_Laufleistung <- plot_data_Laufleistung %>%
 
 ggplot(data=plot_data_Laufleistung, aes(x=cuts, y=cumsum(relativ), group=Herstellernummer)) +
   geom_line()
-
-
