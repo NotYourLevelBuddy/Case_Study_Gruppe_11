@@ -1,6 +1,8 @@
 #install.packages("tidyverse")
 library(readr)
 library(dplyr)
+library(tidyr)
+library(stringr)
 
 #--------------------------------------------------------------------------------------------------------------------
 #Allgemeiner Import, wird immer benötigt
