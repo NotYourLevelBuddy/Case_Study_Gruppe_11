@@ -1,33 +1,42 @@
 #install.packages("tidyverse")
-library(readr)
-library(dplyr)
-library(tidyr)
-library(stringr)
+library(readr) # (für read_csv, read_delim, readLines)
+library(dplyr) # (für daten aufarbeitung, joins, etc)
+library(tidyr) # (drop_na, Datenreinigung)
+library(stringr) # (string replace funktion für die Textdateien mit beschissenen Formaten.)
 
 #--------------------------------------------------------------------------------------------------------------------
-#Allgemeiner Import, wird immer benötigt
-Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
-Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
-Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
+#Allgemeiner Import, wird immer benötigt, Fahrzeugmodell basiert darauf
 
+Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
+Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_Fahrzeuge_OEM1_Typ11.csv ")
+#nur in der Fehleranalyse ist die Betriebsdauer angegeben, nirgendwo anders
+Fahrzeuge_OEM1_Typ11_Fehleranalyse <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11_Fehleranalyse.csv")
+
+# join alle drei Haupttabellen, um pro Fahrzeug nur einen Datensatz zu haben. Wird hier einmal gejoined und
+# dann nur auf die Fehlerhaften Datensätze beschränkt, um den Aufwand für die Komponenten später zu reduzieren
 Fahrzeuge_OEM1_Typ11 <- Fahrzeuge_OEM1_Typ11 %>%
   left_join(Bestandteile_Fahrzeuge_OEM1_Typ11, by="ID_Fahrzeug") %>%
   left_join(Fahrzeuge_OEM1_Typ11_Fehleranalyse, by="ID_Fahrzeug") %>%
   drop_na() %>%
   select(ID_Fahrzeug, ID_Motor, ID_Schaltung, ID_Karosserie, ID_Sitze, Betriebsdauer = days, Produktionsdatum)
 
+#rm löscht Variablen die später nicht mehr benötigt werden. gibt RAM wieder frei
 rm(Bestandteile_Fahrzeuge_OEM1_Typ11, Fahrzeuge_OEM1_Typ11_Fehleranalyse)
 
+# Funktion die Komponenten mit den Fahrzeugdaten joined und die nötigen Parameter extrahiert
+# Variable Join ist ein String, da für Motoren, Schaltungen etc. verschiedene ID'S gejoined werden müssen
 Komponente_Transform <- function (Komponente, Join = ""){
   Komponente <- Komponente %>%
-    filter(!is.na(Fehlerhaft_Datum)) %>%
+    filter(!is.na(Fehlerhaft_Datum)) %>% # nur Fehlerhafte Komponenten betrachten
     left_join(Fahrzeuge_OEM1_Typ11, by = Join) %>%
     drop_na() %>%
-    mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+    mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>% # Lieferdauer berechnen, aus dem Produktionsdatum der Komponente und dem Produktionsdatum des Fahrzeugs
     select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung, Betriebsdauer, Herstellernummer,
              ID_Self = matches(Join) , ID_Parent = ID_Fahrzeug, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
 }
 
+# Funktion die Einzelteile mit den Daten der Komponente joined
+# Variable Join String für die Teil ID, die für jedes Einzelteil anders ist
 Einzelteil_Transform <- function(Teil, Komponente, Join = ""){
   Teil <- Teil %>%
     left_join(Komponente, by=Join) %>%
@@ -40,35 +49,46 @@ Einzelteil_Transform <- function(Teil, Komponente, Join = ""){
 
 #--------------------------------------------------------------------------------------------------------------------
 #Komponente K1BE1
-
+#Aufbau für jede Komponente gleich:
+# 1. Einlesen der Datei, ist bei Komma und Semikolon getrennten Dateien relativ einfach mit vorgefertigen Funktionen möglich
 Komponente_K1BE1 <- read_csv(".\\Data\\Komponente\\Komponente_K1BE1.csv")
+#2. normalisieren der Tabelle, so das alle Spalten den gleichen Namen tragen, und alle Spalten den richtigen Dateityp haben
+# ISt wichtig damit die Funktion funktioniert, und man nicht alle Schritte für jede Komponente einzeln machen muss
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   mutate(Produktionsdatum = as.Date(Produktionsdatum_Origin_01011970)) %>%
   select(c(Fehlerhaft_Fahrleistung, Fehlerhaft_Datum, Herstellernummer, ID_Motor, Produktionsdatum))
-
+# 3. Aufruf Funktion
 Komponente_K1BE1 <- Komponente_Transform(Komponente_K1BE1, "ID_Motor")
-Bestandteile_Komponente_K1BE1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K1BE1.csv")
 
+# 4. Einlesen Bestandteile der Komponente
+Bestandteile_Komponente_K1BE1 <- read_csv2(".\\Data\\Komponente\\Bestandteile_Komponente_K1BE1.csv")
+# 5. Joinen der Bestandteile der Komponente mit der KOmponente, um die Einzelteile zuordnen zu können
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   left_join(Bestandteile_Komponente_K1BE1, by=join_by("ID_Self" == ID_K1BE1))
 
-
+# 6. Einlesen der Einzelteildateien, hier in dem Beispiel txt Datei
+# Da einzeilig und mit 5 Zeichen langem Delimiter, muss erst im String einiges ersetz werden, so das es effizient umgewandelt werden kann
 Einzelteil_T01_str <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T01.txt"), warn=FALSE)
 Einzelteil_T01_str <- str_replace_all(Einzelteil_T01_str, "[|]", "")
 Einzelteil_T01_str <- str_replace_all(Einzelteil_T01_str, "[[:space:]]{3}", "\t")
 Einzelteil_T01_str <- str_replace_all(Einzelteil_T01_str, " \"", "\n\"") # replace linebreaks
+#read_delim braucht eine Datei, deswegen wird es hier in eine temporäre Datei gespeichert, wo der bearbeitete String zwischengespeichert wird
 tf <- tempfile()
 writeLines(Einzelteil_T01_str, tf)
 Einzelteil_T01 <- read_delim(tf, col_names = c("ID", "X1", "ID_T1", "Produktionsdatum", "Herstellernummer", "Werksnummer",
                                                "Fehlerhaft", "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung"), skip = 1)
+#der String und die Temporäre Datei werden wieder gelöscht
 rm(Einzelteil_T01_str, tf)
+#Copy, weil die gleiche Datei für eine andere Komponente gebraucht wird. muss nicht zweimal eingelesen werden
 Einzelteil_T01_K1DI1 <- Einzelteil_T01
 
+#7. Einzelteil normalisieren und vorbereiten für Funktion
 Einzelteil_T01 <- Einzelteil_T01 %>%
   select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_T1, Produktionsdatum))
+#8 Einzelteil Funktionsaufruf
 Einzelteil_T01 <- Einzelteil_Transform(Einzelteil_T01, Komponente_K1BE1, "ID_T1")
 
-
+# 9.für alle Einzelteile der Komponente wiederholen
 Einzelteil_T02_str <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T02.txt"), warn=FALSE)
 Einzelteil_T02_str <- str_replace_all(Einzelteil_T02_str, "\t", "\n") # replace linebreaks
 Einzelteil_T02_str <- str_replace_all(Einzelteil_T02_str, "  ", ",") # replace linebreaks
@@ -104,15 +124,19 @@ Einzelteil_T04 <- Einzelteil_T04 %>%
   select(c(Fehlerhaft_Fahrleistung, Herstellernummer, ID_T4 = ID_T04, Produktionsdatum))
 Einzelteil_T04 <- Einzelteil_Transform(Einzelteil_T04, Komponente_K1BE1, "ID_T4")
 
+#10. Zusammenfügen aller Einzelteile in die Tabelle der Komponente.
+# Select um alle Spalten raus zu werfen die nur für das joinen wichtig waren.
 Komponente_K1BE1 <- Komponente_K1BE1 %>%
   select(c(Fehlerhaft_Fahrleistung, Betriebsdauer, Herstellernummer, ID_Self, ID_Parent, Lieferdauer, Produktionsdatum)) %>%
   bind_rows(list(Einzelteil_T01, Einzelteil_T02, Einzelteil_T03, Einzelteil_T04))
 
+#11. Clean up
 rm(Einzelteil_T01, Einzelteil_T02, Einzelteil_T03, Einzelteil_T04, Bestandteile_Komponente_K1BE1)
 
 #--------------------------------------------------------------------------------------------------------------------
 #Komponente K1DI1
 
+# 12. Wiederhole Schema für alle Komponenten & Einzelteile
 Komponente_K1DI1 <- read_csv(".\\Data\\Komponente\\Komponente_K1DI1.csv")
 Komponente_K1DI1 <- Komponente_K1DI1 %>%
   select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Fehlerhaft_Datum = Fehlerhaft_Datum.x,
@@ -382,8 +406,11 @@ Komponente_K4 <- Komponente_K4 %>%
   bind_rows(list(Einzelteil_T30, Einzelteil_T31, Einzelteil_T32))
 rm(Einzelteil_T30, Einzelteil_T31, Einzelteil_T32, Bestandteile_Komponente_K4)
 
+
+#Füge alle Komponenten hintereinander in eine neue Tabelle
 result <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, Komponente_K2ST1, Komponente_K3AG1,
                           Komponente_K3SG1, Komponente_K4)) #%>%
             #filter(Produktionsdatum >= "2013-01-01" & Produktionsdatum <= "2015-12-31")
 
+#schreibe Datei auf festplatte
 write_csv(result, "Final_Data_Group11.csv")
