@@ -18,19 +18,24 @@ output:
 
 library(yaml)
 ```
+# Vorbereiten der Programmierumgebung
+Um alle gewünschten Imports, Operationen und Anpassungen vornehmen zu können., wird das Tidyverse Package installiert und die Packages readr, dplyr, tidyr und stringr geladen.
 
-# Beispiel für mehrere Tabs {.tabset}
+```
+install.packages("tidyverse")
+library(readr)
+library(dplyr) 
+library(tidyr) 
+library(stringr)
+```
 
-## Beispiel 1a
-Hier steht das.
-
-## Beispiel 1b
-Und hier das.
 
 # Importieren der Dateien
 Um die Case Study bearbeiten zu können wurden folgende Datensätze wurden importiert:
 Dabei sind die Einzeldateien zugehörig zu ihren jeweiligen Komponenten aufgelistet. Sollten Daten aus den Einzelteile Tabellen für unterschiedliche Komponenten genutzt werden, so werden diese einmal beim ersten Aufruf importiert.
+Da für die Aufgabe Einzelteile und Komponenten aus dem Fahrzeug Typ 11 gebraucht werden, welches von der Firma OEM1 gebaut wird, werden anhand der ersten drei Tabellen die restlichen benötigten Dateien rausgesucht.
 
+- Fahrzeuge_OEM1_Typ11
 - Bestandteile_Fahrzeuge_OEM1_Typ11
 - Fahrzeuge_OEM1_Typ11_Fehleranalyse
 - Komponente_K1BE1
@@ -62,12 +67,13 @@ Dabei sind die Einzeldateien zugehörig zu ihren jeweiligen Komponenten aufgelis
 
 Anhand folgender Beispiele wurden oben genannte Dateien importiert.
 
-## Import der Dateien: {.tabset}
+
+## Importbefehle für unterschiedliche Dateitypen: {.tabset}
+Die unterschiedlichen Importbefehle werden jeweils anhand von Beispielen aus dem Originalcode gezeigt.
+
 ### .csv
 CSV Dateien bei welcher die Spalten mit einem Komma separiert sind werden wie folgt importiert:
 ```
-Variablenname <- read_csv(".\\path\\Dateiname.csv")
-
 # Datei Fahrzeuge OEM Typ 11 als Beispiel
 Fahrzeuge_OEM1_Typ11 <- read_csv(".\\Data\\Fahrzeug\\Fahrzeuge_OEM1_Typ11.csv")
 
@@ -84,8 +90,69 @@ Bestandteile_Fahrzeuge_OEM1_Typ11 <- read_csv2(".\\Data\\Fahrzeug\\Bestandteile_
 
 ```
 
-### .txt mehrzeilig
-Text (txt) Dateien
-
 ### .txt einzeilig
-  
+Einzeilige Text (.txt) Dateien werden zuerst als String eingelesen. Anschließend werden die Spalten Delimiter mit `\t` ersetzt und die Zeilen Delimiter mit `\n`.
+```
+Einzelteil_T01_str <- readLines(paste(".\\Data\\Einzelteil\\Einzelteil_T01.txt"), warn=FALSE)
+Einzelteil_T01_str <- str_replace_all(Einzelteil_T01_str, "[|]", "")
+Einzelteil_T01_str <- str_replace_all(Einzelteil_T01_str, "[[:space:]]{3}", "\t")
+Einzelteil_T01_str <- str_replace_all(Einzelteil_T01_str, " \"", "\n\"")
+
+```
+Die Funktion  mit der mehrzeilige .txt Dateien eingelesen werden können, braucht eine Datei als Input. Deswegen wird der eingelesene und angepasste String in eine temporäre Datei gespeichert. Um im weiteren Verlauf Tabellen mit gleichen Spaltennamen zu erhalten, werden die Spaltennamen im read_delim() Befehl mit festgelegt.
+```
+tf <- tempfile()
+writeLines(Einzelteil_T01_str, tf)
+Einzelteil_T01 <- read_delim(tf, col_names = c("ID", "X1", "ID_T1", "Produktionsdatum", "Herstellernummer", "Werksnummer",
+                                               "Fehlerhaft", "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung"), skip = 1)
+```                                               
+Um Arbeitsspeicher zu sparen werden der eingelesene String und die temporäre Datei wieder gelöscht. Die brauchbare Tabelle wurde im vorhergehenden Schritt als Variable gespeichert.
+```
+rm(Einzelteil_T01_str, tf)
+```
+
+### .txt mehrzeilig
+Da R bei mehrzeiligen .txt Dateien den Zeilenumbruch erkennt, muss nur der Spaltenumbruch festgelegt werden. Auch hier werden die Spaltennamen für einheitliches Arbeiten  eigenständig festgelegt.
+
+```
+Komponente_K2ST1 <- read_delim(".\\Data\\Komponente\\Komponente_K2ST1.txt", delim="|",
+                               col_names = c("ID", "X1", "ID_Sitze", "Produktionsdatum", "Herstellernummer", "Werksnummer",
+                                             "Fehlerhaft", "Fehlerhaft_Datum", "Fehlerhaft_Fahrleistung"), skip = 1)
+
+```
+
+
+# Anpassung und Verbinden von Tabellen
+Da abschließend eine Tabelle mit allen benötigten Daten erstellt werden soll, müssen die benötigten Tabellen sortiert, gereinigt und miteinander verbunden werden.
+Diese Befehle werden für so gut wie jede Tabelle genutzt, deshalb bietet es sich an dies durch Funktionen zu definieren, welche dann nur noch aufgerufen werden müssen.
+Dabei werden innerhalb der Funktion auch einzelne Spalten manipuliert und fehlerhafte Daten aussortiert um anschließend einen sortierten Datensatz zu erhalten.
+
+
+## Funktionen zum Verbinden von Tabellen {.tabset}
+
+### Funktion Komponente_Transform
+Diese Funktion verbindet die Komponenten mit den Fahrzeugdaten dabei werden die benötigen Parameter extrahiert.
+Das Argument "Join" ist ein String, da für die unterschiedlichen Komponenten wie z.B. Motoren oder Schaltungen, die Tabellen anhand von verschiedenen ID'S verbunden werden müssen.
+```
+Komponente_Transform <- function (Komponente, Join = ""){
+  Komponente <- Komponente %>%
+    filter(!is.na(Fehlerhaft_Datum)) %>% # nur Fehlerhafte Komponenten betrachten
+    left_join(Fahrzeuge_OEM1_Typ11, by = Join) %>%
+    drop_na() %>%
+    mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>% # Lieferdauer berechnen, aus dem Produktionsdatum der Komponente und dem Produktionsdatum des Fahrzeugs
+    select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung, Betriebsdauer, Herstellernummer,
+             ID_Self = matches(Join) , ID_Parent = ID_Fahrzeug, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+}
+```
+
+### Funktion Einzelteil_Transform
+```
+Einzelteil_Transform <- function(Teil, Komponente, Join = ""){
+  Teil <- Teil %>%
+    left_join(Komponente, by=Join) %>%
+    drop_na() %>%
+    mutate(Lieferdauer = Produktionsdatum.y - Produktionsdatum.x) %>%
+    select(c(Fehlerhaft_Fahrleistung = Fehlerhaft_Fahrleistung.x, Betriebsdauer, Herstellernummer = Herstellernummer.x,
+             ID_Self = matches(Join), ID_Parent = ID_Self, Lieferdauer, Produktionsdatum = Produktionsdatum.x))
+}
+```

@@ -415,10 +415,6 @@ result <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, K
 #schreibe Datei auf festplatte
 write_csv(result, "Final_Data_Group11.csv")
 
-flug1 <- read_delim(".\\3_1.txt", col_names = c("sekunden", "hoehe")) %>%
-  mutate(hoehe_neu = hoehe * 0.3048)
-
-flug2 <- read_delim(".\\3_3.txt")
-
-ggplot(flug1, aes(sekunden, hoehe) ) +
-  geom_line()
+test <- read_csv("Final_Data_Group11.csv")
+test2 <- left_join(test, test, by = join_by(ID_Parent == ID_Self)) %>%
+  drop_na()
