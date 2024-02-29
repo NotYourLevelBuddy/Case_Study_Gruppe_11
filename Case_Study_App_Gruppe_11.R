@@ -415,6 +415,7 @@ result <- bind_rows(list(Komponente_K1BE1, Komponente_K1DI1 ,Komponente_K2LE1, K
 #schreibe Datei auf festplatte
 write_csv(result, "Final_Data_Group11.csv")
 
+# muss noch raus
 test <- read_csv("Final_Data_Group11.csv")
 test2 <- left_join(test, test, by = join_by(ID_Parent == ID_Self)) %>%
   drop_na()
